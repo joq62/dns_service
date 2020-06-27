@@ -1,0 +1,3 @@
+%% encoding: UTF-8
+{modules,[lib_ets,lib_master,master_service,master_service_app,
+          master_service_sup,orchistrater,service_handler]}.
