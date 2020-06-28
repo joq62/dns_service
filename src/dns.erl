@@ -12,19 +12,14 @@
 %% --------------------------------------------------------------------
 
 %-compile(export_all).
--export([all/1,get/2,update/0,add/3,delete/3,
-	update_local_dns/1]).
+-export([all/1,get/2,update/0,add/3,delete/3]).
 
 -define(NODE_CONFIG_FILE,"node_config/node.config").
-
+-define(CATALOG_CONFIG_FILE,"catalog/catalog.info").
 
 %% ====================================================================
 %% External functions
 %% ====================================================================
-update_local_dns(DnsInfo)->
-    ActiveBootServices=get("boot_services",DnsInfo),
-    [rpc:cast(Node,boot_service,dns_update,[DnsInfo])||{_,Node}<-ActiveBootServices],
-    ok.
 
 
 %% --------------------------------------------------------------------
@@ -51,10 +46,13 @@ get(WantedServiceId,DnsInfo)->
 -spec(update()->[{ServiceId::string(),Node::atom()}]| []).
 update()->
     {ok,NodeConfig}=file:consult(?NODE_CONFIG_FILE),
+    {ok,CatalogConfig}=file:consult(?CATALOG_CONFIG_FILE),
     R1=[{net_kernel:connect_node(Node),Node}||{_,Node}<-NodeConfig],
     R2=[Node||{true,Node}<-R1],
     L1=[{rpc:call(Node,application,which_applications,[]),Node}||Node<-R2],
-    ServiceList=lists:append([create_list(AppInfo,Node,[])||{AppInfo,Node}<-L1]),
+    AllApplications=lists:append([create_list(AppInfo,Node,[])||{AppInfo,Node}<-L1]),
+    ServiceList=[{ServiceId,Node}||{ServiceId,Node}<-AllApplications,
+				   lists:keymember(ServiceId,1,CatalogConfig)],
     ServiceList.
 
 
@@ -63,7 +61,7 @@ create_list([],_Node,ServiceList)->
 create_list([{Service,_Desc,_Vsn}|T],Node,Acc)->
     NewAcc=[{atom_to_list(Service),Node}|Acc],
     create_list(T,Node,NewAcc).
-
+ 
 
 %% @doc: add(ServiceId,Node,DnsInfo) -> New DnsInfo list
 
