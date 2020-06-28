@@ -9,8 +9,10 @@ doc_gen:
 	erl -s doc_gen start -sname doc
 
 test:
-	rm -rf  logfiles latest.log  *_service;
+	rm -rf  logfiles latest.log node_config *_service;
 	rm -rf *.beam ebin/* test_ebin/* erl_crash.dump;
+#	node_config
+	git clone https://github.com/joq62/node_config.git;
 	cp src/*app ebin;
 	erlc -o ebin src/*.erl;
 	erlc -o test_ebin test_src/*.erl;

@@ -15,7 +15,7 @@
 -export([all/1,get/2,update/0,add/3,delete/3,
 	update_local_dns/1]).
 
-
+-define(NODE_CONFIG_FILE,"node_config/node.config").
 
 
 %% ====================================================================
@@ -50,8 +50,10 @@ get(WantedServiceId,DnsInfo)->
 
 -spec(update()->[{ServiceId::string(),Node::atom()}]| []).
 update()->
-    Nodes=[node()|nodes()],
-    L1=[{rpc:call(Node,application,which_applications,[]),Node}||Node<-Nodes],
+    {ok,NodeConfig}=file:consult(?NODE_CONFIG_FILE),
+    R1=[{net_kernel:connect_node(Node),Node}||{_,Node}<-NodeConfig],
+    R2=[Node||{true,Node}<-R1],
+    L1=[{rpc:call(Node,application,which_applications,[]),Node}||Node<-R2],
     ServiceList=lists:append([create_list(AppInfo,Node,[])||{AppInfo,Node}<-L1]),
     ServiceList.
 
