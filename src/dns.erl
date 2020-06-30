@@ -42,8 +42,8 @@ get(WantedServiceId,DnsInfo)->
 
 -spec(update()->[{ServiceId::string(),Node::atom()}]| []).
 update()->
-    {ok,NodeConfig}=file:consult(?NODE_CONFIG_FILE),
-    {ok,CatalogConfig}=file:consult(?CATALOG_CONFIG_FILE),
+    {ok,NodeConfig}=file:consult(filename:join(?NODE_CONFIG_DIR,?NODE_CONFIG_FILE)),
+    {ok,CatalogConfig}=file:consult(filename:join(?CATALOG_CONFIG_DIR,?CATALOG_CONFIG_FILE)),
     R1=[{net_kernel:connect_node(Node),Node}||{_,Node}<-NodeConfig],
     R2=[Node||{true,Node}<-R1],
     L1=[{rpc:call(Node,application,which_applications,[]),Node}||Node<-R2],
