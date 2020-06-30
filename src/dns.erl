@@ -10,12 +10,9 @@
 %% --------------------------------------------------------------------
 %% Include files
 %% --------------------------------------------------------------------
-
+-include("config.hrl").
 %-compile(export_all).
 -export([all/1,get/2,update/0,add/3,delete/3]).
-
--define(NODE_CONFIG_FILE,"node_config/node.config").
--define(CATALOG_CONFIG_FILE,"catalog/catalog.info").
 
 %% ====================================================================
 %% External functions
