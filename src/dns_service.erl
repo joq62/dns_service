@@ -12,6 +12,7 @@
 %% --------------------------------------------------------------------
 -include("timeout.hrl").
 -include("syslog.hrl").
+-include("config.hrl").
 %% --------------------------------------------------------------------
 
 
@@ -191,6 +192,7 @@ code_change(_OldVsn, State, _Extra) ->
 %% Returns: non
 %% --------------------------------------------------------------------
 h_beat(Interval)->
+    dns:update_info(?CATALOG_CONFIG_URL,?CATALOG_CONFIG_DIR,?CATALOG_CONFIG_FILE),
     ServiceList=dns:update(),
     dns_service:update(ServiceList),
     timer:sleep(Interval),

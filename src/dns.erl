@@ -12,12 +12,18 @@
 %% --------------------------------------------------------------------
 -include("config.hrl").
 %-compile(export_all).
--export([all/1,get/2,update/0,add/3,delete/3]).
+-export([update_info/3,all/1,get/2,update/0,add/3,delete/3]).
 
 %% ====================================================================
 %% External functions
 %% ====================================================================
 
+update_info(GitUrl,Dir,FileName)->
+    os:cmd("rm -rf "++Dir),
+    os:cmd("git clone "++GitUrl),
+    timer:sleep(100),
+    {R,Info}=file:consult(filename:join(Dir,FileName)),
+    {R,Info}.
 
 %% --------------------------------------------------------------------
 %% 
