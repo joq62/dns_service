@@ -11,6 +11,7 @@
 %% Include files
 %% --------------------------------------------------------------------
 -include("config.hrl").
+-include("log.hrl").
 %-compile(export_all).
 -export([update_info/3,all/1,get/2,update/0,add/3,delete/3]).
 
@@ -53,6 +54,7 @@ update()->
     R1=[{net_kernel:connect_node(Node),Node}||{_,Node}<-NodeConfig],
     R2=[Node||{true,Node}<-R1],
     L1=[{rpc:call(Node,application,which_applications,[]),Node}||Node<-R2],
+    
     AllApplications=lists:append([create_list(AppInfo,Node,[])||{AppInfo,Node}<-L1]),
     ServiceList=[{ServiceId,Node}||{ServiceId,Node}<-AllApplications,
 				   lists:keymember(ServiceId,1,CatalogConfig)],
@@ -63,7 +65,10 @@ create_list([],_Node,ServiceList)->
     ServiceList;
 create_list([{Service,_Desc,_Vsn}|T],Node,Acc)->
     NewAcc=[{atom_to_list(Service),Node}|Acc],
-    create_list(T,Node,NewAcc).
+    create_list(T,Node,NewAcc);
+create_list([{badrpc,Err}|T],Node,Acc) ->
+    ?LOG_INFO(error,[Node,badrpc,Err]),
+    create_list(T,Node,Acc).
  
 
 %% @doc: add(ServiceId,Node,DnsInfo) -> New DnsInfo list
